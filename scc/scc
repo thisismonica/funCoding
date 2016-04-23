@@ -1,0 +1,76 @@
+def constructGraph(numofVertices, edges):
+        graph = [[] for i in range(numofVertices+1)]
+
+        for e in edges:
+            u, v = e
+            graph[u].append(v)
+        return graph
+
+def constructRevGraph(numofVertices, edges):
+        graph = [[] for i in range(numofVertices+1)]
+
+        for e in edges:
+            u, v = e
+            graph[v].append(u)
+        return graph
+
+def dfs(graph, v, visited, orders):
+    visited.add(v)
+    for n in graph[v]:
+        if n not in visited:
+            dfs(graph, n, visited, orders)
+    orders.append(v)
+
+def dfsStack(graph, v, visited, orders):
+    visited.add(v)
+    stack = [v]
+    while stack:
+        v = stack[-1]
+        hasPush = False
+        for n in graph[v]:
+            if n not in visited:
+                stack.append(n)
+                visited.add(n)
+                hasPush = True
+        if not hasPush:
+            orders.append(stack.pop())
+
+def dfs_loop(graph):
+    orders = []
+    visited = set()
+    for v in range(1, len(graph)):
+        if v not in visited:
+            dfsStack(graph, v, visited, orders)
+    return orders
+
+def computeSCC(graphRev, graph):
+    orders = dfs_loop(graphRev)
+    visited = set()
+    sccs = []
+
+    for v in orders[::-1]:
+        if v not in visited:
+            lenBefore = len(visited)
+            dfsStack(graph, v, visited,[])
+            lenAfter = len(visited)
+            sccs.append(lenAfter - lenBefore)
+
+    return sccs
+
+
+with open("edges0", 'r') as f:
+    edges = []
+    #numofVertices = 875714
+    numofVertices = 6
+
+    for line in f.readlines():
+        edges.append((int(line.split()[0]), int(line.split()[1])))
+    graph = constructGraph(numofVertices,edges)
+    graphRev = constructRevGraph(numofVertices, edges)
+
+    sccs = computeSCC(graphRev, graph)
+    print sccs
+
+
+
+
